@@ -1,21 +1,25 @@
-# https-domain-setup
+# HTTPS Domain Setup
+
 Этот репозиторий содержит пошаговое руководство по привязке домена к серверу и настройке HTTPS. Здесь вы найдете инструкции по установке SSL-сертификата, настройке веб-сервера (Nginx/Apache) и автоматическому продлению сертификатов с Let’s Encrypt.
 
-1. Подготовка сервера
-   - Обнови систему:
-```console
+## 1. Подготовка сервера
+Обновите систему:
+```sh
 sudo apt update && sudo apt upgrade -y
 ```
-2. Установи нужные утилиты:
-```console
+
+Установите необходимые утилиты:
+```sh
 sudo apt install nginx certbot python3-certbot-nginx -y
 ```
-3. Создайте конфиг
-```console
+
+## 2. Создание конфигурации
+Создайте конфигурационный файл:
+```sh
 sudo nano /etc/nginx/sites-available/<domain-name>
 ```
-Добавь следующее:
-```console
+Добавьте следующий код:
+```nginx
 server {
     listen 80;
     server_name <domain-name>;
@@ -28,31 +32,40 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
-
 ```
-4. Активируй конфиг:
-```console
+
+Активируйте конфигурацию и перезапустите Nginx:
+```sh
 sudo ln -s /etc/nginx/sites-available/<domain-name> /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 ```
-5. Подключение HTTPS (Let's Encrypt)
-```console
+
+## 3. Подключение HTTPS (Let's Encrypt)
+
+Запустите Certbot для получения SSL-сертификата:
+```sh
 sudo certbot --nginx -d <domain-name>
 ```
-6. Настрой автоматическое обновление сертификата:
-```console
+
+Настройте автоматическое обновление сертификата:
+```sh
 sudo certbot renew --dry-run
 ```
-7. Проверить наличие SSL-сертификата
-```console
+
+Проверьте наличие SSL-сертификата:
+```sh
 sudo certbot certificates
 ```
--Подключение ssl
-8. Изменяем конфиг
-```console
-sudo nano /etc/nginx/sites-available/backend
+
+## 4. Подключение SSL
+
+Редактируем конфигурацию:
+```sh
+sudo nano /etc/nginx/sites-available/<domain-name>
 ```
-```console
+
+Добавляем поддержку HTTPS:
+```nginx
 server {
     listen 80;
     server_name <domain-name>;
@@ -62,7 +75,7 @@ server {
 server {
     listen 443 ssl;
     server_name <domain-name>;
-         # сюда нужно вставить пудж до ключей fullchain.pem и privkey.pem из команды sudo certbot certificates
+    
     ssl_certificate /etc/letsencrypt/live/<domain-name>/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/<domain-name>/privkey.pem;
 
@@ -75,15 +88,19 @@ server {
     }
 }
 ```
-9. Перезапускаем Nginx:
-```console
+
+Перезапустите Nginx:
+```sh
 sudo systemctl restart nginx
 ```
-10. Проверяем слушает ли Nginx 443 порт:
-```console
+
+Проверьте, слушает ли Nginx 443 порт:
+```sh
 sudo ss -tlnp | grep nginx
 ```
-11. Запускаем Backend
-```console
+
+## 5. Запуск Backend
+```sh
 python main.py
 ```
+
