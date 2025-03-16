@@ -47,7 +47,7 @@ sudo certbot renew --dry-run
 ```console
 sudo certbot certificates
 ```
-Подключение ssl
+-Подключение ssl
 8. Изменяем конфиг
 ```console
 sudo nano /etc/nginx/sites-available/backend
